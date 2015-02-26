@@ -1,0 +1,96 @@
+<html>
+<head><div align='center'><h1>Graph!!!</h1></div></head>
+<body><input type="text" id="x" style="width:50px; height:20px" onkeydown="enter(event)">
+<input type="text" id="y" style="width:50px; height:20px" onkeydown="enter(event)">
+<input type="button" value="connect" onclick="connect()">
+<input type="button" value="colour" onclick="send_server()">
+ 	<canvas id="canvas" width="1200" height="500" style="border:1px solid;cursor:crosshair;" onclick="addvertex(event)"></canvas></body>
+<script>
+var vertex=[];
+function enter(e){
+	if(e.keyCode==13)
+		connect();
+};
+function addvertex(e){
+	var c=document.getElementById("canvas");
+	var ctx=c.getContext("2d");
+	var x=e.clientX-c.getBoundingClientRect().left;
+        var y=e.clientY-c.getBoundingClientRect().top;
+	ctx.beginPath();
+	ctx.fillRect(x,y,10,10);
+	ctx.fillStyle="black";
+	ctx.font ="20px bold Arial";
+	ctx.fillText('v'+vertex.length,x,y);
+	vertex.push({name:'v'+vertex.length,cord:[x,y],color:"black",adjacent:[]});
+};
+function connect(){
+	x=document.getElementById("x").value;
+	y=document.getElementById("y").value;
+	if(x && y){
+	var c=document.getElementById("canvas");
+        var ctx=c.getContext("2d");
+	ctx.beginPath();
+	var v1=find(x);
+	var v2=find(y);
+	ctx.lineWidth=3;
+	ctx.moveTo(v1.cord[0]+5,v1.cord[1]+5);
+	ctx.lineTo(v2.cord[0]+5,v2.cord[1]+5);
+	if(v1.adjacent.indexOf(v2.name)==-1)
+		v1.adjacent[v1.adjacent.length]=v2.name;
+	if(v2.adjacent.indexOf(v1.name)==-1)
+		v2.adjacent[v2.adjacent.length]=v1.name;
+	ctx.stroke();
+	};
+};
+function find(name){
+	for(x in vertex){
+		if(vertex[x].name==name)
+			return vertex[x];
+	};
+};
+
+function send_server(){
+	colours=["blue","green","yellow","orange","red"]
+	cond=0;
+	for (v in vertex){
+		var f=findclr(vertex[v].name);
+		var i=0;
+		cond=0;
+		while(cond==0 && i<colours.length){
+			if(f.indexOf(colours[i])>-1){
+				cond=0;
+				i+=1;
+			}
+			else{
+				cond=1;
+				vertex[v].color=colours[i];
+			};
+		};
+		console.log(vertex);
+	};
+	colour_vertex();
+};
+function findclr(v){
+	var vlist=[];
+	for(x in vertex){
+		if(vertex[x].adjacent.indexOf(v)>-1)
+			vlist.push(vertex[x].color);
+	};
+	return vlist;
+};
+
+function colour_vertex(){
+	for(v in vertex){
+		var canvas=document.getElementById("canvas");
+	        var ctx=canvas.getContext("2d");
+        	var x=vertex[v].cord[0];
+        	var y=vertex[v].cord[1];
+		ctx.fillStyle=vertex[v].color;
+        	ctx.beginPath();
+        	ctx.fillRect(x,y,10,10);
+		ctx.closePath();
+	};
+};
+</script>
+</html>
+
